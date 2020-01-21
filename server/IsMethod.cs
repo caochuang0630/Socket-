@@ -6,7 +6,8 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Net.Sockets;
 using Method;
-
+using System.Data;
+using System.Threading;
 
 namespace server
 {
@@ -32,6 +33,8 @@ namespace server
                 if (str=="#exit")
                 {
                     Console.WriteLine(socket.name+" 客户端断开了连接");
+                    Data.list_Socket.Remove(socket);
+                    socket.socket.Close();
                     return;
                 }
 
@@ -53,20 +56,40 @@ namespace server
         public static void IsSQL(string text,Socket connfd)
         {
             DBhelper db = new DBhelper();
-            if (Regex.IsMatch(text,@"^#SQL "))
+            if (Regex.IsMatch(text,@"^#SQL"))
             {
-                try
+                //判断是增删改，还是查
+                if (Regex.IsMatch(text,@"^#SQL-q "))
                 {
-                    string sql = text.Substring(5);
-                    int result = db.query(sql);
+                    try
+                    {
+                        //增删改返回影响行数
+                        string sql = text.Substring(7);
+                        int result = db.query(sql);
 
-                    byte[] bytes = System.Text.Encoding.UTF8.GetBytes("影响" + result + "行");
-                    connfd.Send(bytes);
-                }
-                catch (Exception)
+                        byte[] bytes = System.Text.Encoding.UTF8.GetBytes("影响" + result + "行");
+                        connfd.Send(bytes);
+                    }
+                    catch (Exception)
+                    {
+                        connfd.Send(Encoding.UTF8.GetBytes("命令错误"));
+                    }
+                }else if (Regex.IsMatch(text,@"^#SQL-s "))
                 {
-                    connfd.Send(Encoding.UTF8.GetBytes("命令错误"));
+                    try
+                    {
+                        //查返回查询到了几行
+                        string sql = text.Substring(7);
+                        DataTable result = db.GetTable(sql);
+
+                        connfd.Send(Encoding.UTF8.GetBytes(result.Rows.Count.ToString()));
+                    }
+                    catch (Exception)
+                    {
+                        
+                    }
                 }
+                
                 
             }
         }
@@ -104,8 +127,10 @@ namespace server
                 foreach (Socket_Thread i in Data.list_Socket )
                 {
                     connfd.Send(Encoding.UTF8.GetBytes(i.name));
+                    Thread.Sleep(100);
                 }
-                
+                Thread.Sleep(100);
+                connfd.Send(Encoding.UTF8.GetBytes("#End"));
             }
         }
     }

@@ -10,6 +10,8 @@ namespace server
 {
     class DBhelper
     { 
+        //数据库增删改查
+
         SqlConnection sqlcon;
 
         public DBhelper()
@@ -28,6 +30,17 @@ namespace server
             return result;
         }
 
-        
+        public DataTable GetTable(string sql)
+        {
+            SqlDataAdapter sda = new SqlDataAdapter(sql,sqlcon);
+
+            sqlcon.Open();
+
+            DataSet ds = new DataSet();
+            sda.Fill(ds);
+            sqlcon.Close();
+
+            return ds.Tables[0];
+        }
     }
 }

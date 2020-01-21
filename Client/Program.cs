@@ -71,7 +71,9 @@ namespace Client
                 string Recv_str = System.Text.Encoding.UTF8.GetString(readBuff, 0, count);
                 Console.WriteLine("服务器返回: " + Recv_str);
             }
-            
+
         }
+
+
     }
 }
