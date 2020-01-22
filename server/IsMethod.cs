@@ -109,14 +109,22 @@ namespace server
                     string name = text.Substring(Method.Class1.index_char(text, ' ', 1) + 1, (Method.Class1.index_char(text, ' ', 2)) - (Method.Class1.index_char(text, ' ', 1)) - 1);
                     string send_text = text.Substring(Method.Class1.index_char(text, ' ', 2) + 1);
 
-                    //根据查找找到相应socket来发送
-                    List<Socket_Thread> result = Data.list_Socket.Where(x => x.name == name).ToList();
-                    result[0].socket.Send(System.Text.Encoding.UTF8.GetBytes(send_text));
-                    connfd.Send(System.Text.Encoding.UTF8.GetBytes("发送成功"));
+                    try
+                    {
+                        //根据查找找到相应socket来发送
+                        List<Socket_Thread> result = Data.list_Socket.Where(x => x.name == name).ToList();
+                        result[0].socket.Send(System.Text.Encoding.UTF8.GetBytes(send_text));
+                        connfd.Send(System.Text.Encoding.UTF8.GetBytes("#发送成功"));
+                    }
+                    catch (Exception)
+                    {
+                        connfd.Send(Encoding.UTF8.GetBytes("#用户名不存在"));
+                    }
+                    
                 }
                 catch (Exception)
                 {
-                    connfd.Send(Encoding.UTF8.GetBytes("命令错误"));
+                    connfd.Send(Encoding.UTF8.GetBytes("#命令错误"));
                 }
                 
             }

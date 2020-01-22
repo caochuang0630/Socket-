@@ -14,16 +14,19 @@ namespace server
     {
         static void Main(string[] args)
         {
+            
             //新建一个套接字Socket即创建Socket
             //Socket（AddressFamily.InterNetwork， SocketType.Stream， ProtocolType.Tcp） ”这一行创建了一个套接字， 它的3个参数分别代表地址族、 套接字类型和协议。 地址族指明是使用IPv4还是IPv6， 含义如表6-8所示， 本例中使用的是IPv4， 即InterNetwork
             Socket listenfd = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
             //Bind指定套接字的IP和端口
             //listenfd.Bind（ipEp） 将给listenfd套接字绑定IP和端口。 示例程序中绑定的是本地地址“127.0.0.1”和1234号端口。 127.0.0.1是回送地址， 指本地机， 一般用于测试。 读者也可以设置成真实的IP地址， 然后在两台电脑上分别运行客户端和服务端程序。
-            IPAddress ipAdr = IPAddress.Parse("127.0.0.1");//根据IP地址创建IPAddress对象，如IPAddress.Parse("192.168.1.1")
+            //IPAddress ipAdr = IPAddress.Parse("127.0.0.1");//根据IP地址创建IPAddress对象，如IPAddress.Parse("192.168.1.1")
 
             IPEndPoint ipEp = new IPEndPoint(IPAddress.Any, 2222);//用IPAddress指定的地址和端口号初始化
             //绑定ip，port
             listenfd.Bind(ipEp);
+
+            
             //服务端通过listenfd.Listen（0） 开启监听， 等待客户端连接。 参数backlog指定队列中最多可容纳等待接受的连接数， 0表示不限制
             listenfd.Listen(20);
             Console.WriteLine("[服务器]启动成功");
@@ -53,6 +56,9 @@ namespace server
                         break;
                     }
                 }
+
+                //发送一个回包，告诉客户端登陆成功
+                connfd.Send(Encoding.UTF8.GetBytes("#True"));
 
 
                 Socket_Thread st = new Socket_Thread(connfd, name);
