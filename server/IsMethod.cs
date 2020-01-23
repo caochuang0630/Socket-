@@ -67,7 +67,7 @@ namespace server
                         string sql = text.Substring(7);
                         int result = db.query(sql);
 
-                        byte[] bytes = System.Text.Encoding.UTF8.GetBytes("影响" + result + "行");
+                        byte[] bytes = System.Text.Encoding.UTF8.GetBytes(result.ToString());
                         connfd.Send(bytes);
                     }
                     catch (Exception)
@@ -86,7 +86,7 @@ namespace server
                     }
                     catch (Exception)
                     {
-                        
+                        connfd.Send(Encoding.UTF8.GetBytes("命令错误"));
                     }
                 }
                 
@@ -118,7 +118,7 @@ namespace server
                     }
                     catch (Exception)
                     {
-                        connfd.Send(Encoding.UTF8.GetBytes("#用户名不存在"));
+                        connfd.Send(Encoding.UTF8.GetBytes("#用户名不存在,或者用户已经下线"));
                     }
                     
                 }

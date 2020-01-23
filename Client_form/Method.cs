@@ -63,5 +63,23 @@ namespace Client_form
                 listbox.Items.Add(text);
             }
         }
+
+        /// <summary>
+        /// 设置窗体居中
+        /// </summary>
+        /// <param name="form"></param>
+        public static void set_position_center(Form form)
+        {
+            //获取桌面宽高
+            int desktop_width = System.Windows.Forms.SystemInformation.PrimaryMonitorSize.Width;
+            int desktop_height = System.Windows.Forms.SystemInformation.PrimaryMonitorSize.Height;
+
+            //获取程序宽高
+            int form_width = form.Width;
+            int form_height = form.Height;
+
+            //设置居中
+            
+        }
     }
 }

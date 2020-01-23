@@ -30,7 +30,15 @@ namespace Client_form
 
         private void button1_Click(object sender, EventArgs e)
         {
-            IsLogin(this.textBox1.Text,this.textBox2.Text);
+            if (!(this.textBox1.Text==""||this.textBox2.Text==""))
+            {
+                IsLogin(this.textBox1.Text, this.textBox2.Text);
+            }
+            else
+            {
+                this.label4.Text = "账号密码不能为空";
+            }
+            
         }
 
         /// <summary>
@@ -121,14 +129,10 @@ namespace Client_form
             
         }
 
-        private void Recv(object o)
+        private void linkLabel1_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
         {
-            Socket socket = (Socket)o;
-
-            
-
-
+            register f = new register();
+            f.ShowDialog();
         }
-
     }
 }

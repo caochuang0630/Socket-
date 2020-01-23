@@ -30,7 +30,10 @@ namespace Client_form
 
         private void button1_Click(object sender, EventArgs e)
         {
+            //通过设置按钮响应机制防止服务器提交出错
+            this.button1.Enabled = false;
             Refresh_user();
+            this.button1.Enabled = true;
         }
 
         private void Refresh_user()

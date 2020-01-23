@@ -116,6 +116,7 @@
             this.ClientSize = new System.Drawing.Size(853, 665);
             this.Controls.Add(this.splitContainer1);
             this.Name = "Chat";
+            this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
             this.Text = "Chat";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.Chat_FormClosing);
             this.splitContainer1.Panel1.ResumeLayout(false);
