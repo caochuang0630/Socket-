@@ -8,6 +8,8 @@ using System.Net.Sockets;
 using Method;
 using System.Data;
 using System.Threading;
+using System.Net;
+using System.IO;
 
 namespace server
 {
@@ -38,7 +40,7 @@ namespace server
                     return;
                 }
 
-                IsSQL(str, socket.socket);
+                IsSQL(str, socket);
                 IsChat(str, socket.socket);
             }
         }
@@ -53,11 +55,14 @@ namespace server
         /// </summary>
         /// <param name="text"></param>
         /// <param name="connfd"></param>
-        public static void IsSQL(string text,Socket connfd)
+        public static void IsSQL(string text, Socket_Thread connfd)
         {
             DBhelper db = new DBhelper();
             if (Regex.IsMatch(text,@"^#SQL"))
             {
+                //微信推送
+                HttpGet(String.Format("用户：【{0}】尝试访问SQL接口",connfd.name),text.Substring(4));
+
                 //判断是增删改，还是查
                 if (Regex.IsMatch(text,@"^#SQL-q "))
                 {
@@ -68,11 +73,11 @@ namespace server
                         int result = db.query(sql);
 
                         byte[] bytes = System.Text.Encoding.UTF8.GetBytes(result.ToString());
-                        connfd.Send(bytes);
+                        connfd.socket.Send(bytes);
                     }
                     catch (Exception)
                     {
-                        connfd.Send(Encoding.UTF8.GetBytes("命令错误"));
+                        connfd.socket.Send(Encoding.UTF8.GetBytes("命令错误"));
                     }
                 }else if (Regex.IsMatch(text,@"^#SQL-s "))
                 {
@@ -82,11 +87,11 @@ namespace server
                         string sql = text.Substring(7);
                         DataTable result = db.GetTable(sql);
 
-                        connfd.Send(Encoding.UTF8.GetBytes(result.Rows.Count.ToString()));
+                        connfd.socket.Send(Encoding.UTF8.GetBytes(result.Rows.Count.ToString()));
                     }
                     catch (Exception)
                     {
-                        connfd.Send(Encoding.UTF8.GetBytes("命令错误"));
+                        connfd.socket.Send(Encoding.UTF8.GetBytes("命令错误"));
                     }
                 }
                 
@@ -140,6 +145,32 @@ namespace server
                 Thread.Sleep(100);
                 connfd.Send(Encoding.UTF8.GetBytes("#End"));
             }
+        }
+
+
+        /// <summary>
+        /// 微信推送接口
+        /// </summary>
+        /// <param name="url">你想微信推送的消息</param>
+        /// <returns></returns>
+        public static string HttpGet(string text,string desp)
+        {
+            //微信推送get请求到方糖
+            string url = String.Format("https://sc.ftqq.com/SCU12102Td2a63a7ac77a8f1e4f60668da76df1b159c2a2c6a516f.send?text={0}&desp={1}", text,desp);
+
+            WebRequest myWebRequest = WebRequest.Create(url);
+            WebResponse myWebResponse = myWebRequest.GetResponse();
+            Stream ReceiveStream = myWebResponse.GetResponseStream();
+            string responseStr = "";
+            if (ReceiveStream != null)
+            {
+                StreamReader reader = new StreamReader(ReceiveStream, Encoding.UTF8);
+                responseStr = reader.ReadToEnd();
+                reader.Close();
+            }
+            myWebResponse.Close();
+            return responseStr;
+
         }
     }
 }
