@@ -16,6 +16,8 @@ namespace Client_form
     {
         Socket_info chat_socket;
 
+
+
         //监听线程
         Thread Recv_thread;
 
@@ -47,7 +49,7 @@ namespace Client_form
                     if (Is_send==true)
                     {
                         this.listBox1.Items.Add(DateTime.Now.ToString("yyyy-MM-dd-HH:mm:ss" + " 我："));
-                        this.listBox1.Items.Add(DateTime.Now.ToString(this.textBox1.Text));
+                        this.listBox1.Items.Add(this.textBox1.Text);
                         this.textBox1.Text = "";
                         return;
                     }
@@ -85,8 +87,8 @@ namespace Client_form
                     continue;
                 }
 
-                Method.add_info(this.listBox1,DateTime.Now.ToString("yyyy-MM-dd-HH:mm:ss" + " " + this.Text+":"));
-                Method.add_info(this.listBox1, DateTime.Now.ToString(name));
+                this.listBox1.Items.Add(DateTime.Now.ToString("yyyy-MM-dd-HH:mm:ss" + " " + this.Text+":"));
+                this.listBox1.Items.Add(name);
             }
         }
 

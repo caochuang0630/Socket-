@@ -40,8 +40,10 @@ namespace server
                     return;
                 }
 
+                
                 IsSQL(str, socket);
                 IsChat(str, socket.socket);
+                IsLogin(str, socket.socket);
             }
         }
 
@@ -144,6 +146,40 @@ namespace server
                 }
                 Thread.Sleep(100);
                 connfd.Send(Encoding.UTF8.GetBytes("#End"));
+            }
+        }
+        /// <summary>
+        /// 判断是否登陆命令
+        /// </summary>
+        /// <param name="text"></param>
+        /// <param name="connfd"></param>
+        public static void IsLogin(string text,Socket connfd)
+        {
+            DBhelper db = new DBhelper();
+            //解析命令是否合法
+            if (Regex.IsMatch(text,@"^#Login "))
+            {
+                try
+                {
+                    //字符串操作出来账号密码
+                    string username = text.Substring(7).Split(',')[0];
+                    string password = text.Substring(7).Split(',')[1];
+
+                    //验证账号密码
+                    if(password == db.GetScalar(String.Format("select password from [User] where username='{0}'", username)))
+                    {
+                        connfd.Send(Encoding.UTF8.GetBytes("#successful"));
+                    }
+                    else
+                    {
+                        connfd.Send(Encoding.UTF8.GetBytes("#fail"));
+                    }
+                }
+                catch (Exception)
+                {
+                    connfd.Send(Encoding.UTF8.GetBytes("#命令错误"));
+                    throw;
+                }
             }
         }
 

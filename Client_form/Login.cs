@@ -73,7 +73,7 @@ namespace Client_form
             //如果数据收到了就结束检测线程
             overtime.Abort();
 
-            socket.Send(Encoding.UTF8.GetBytes(String.Format("#SQL-s select * from [User] where username='{0}' and password='{1}'",user,password)));
+            socket.Send(Encoding.UTF8.GetBytes(String.Format("#Login {0},{1}",user,password)));
 
             ////设置一个线程来登录
             //login = new Thread(new ParameterizedThreadStart(Recv));//创建线程
@@ -82,7 +82,7 @@ namespace Client_form
             count = socket.Receive(readBuff);
 
             string Recv_str = System.Text.Encoding.UTF8.GetString(readBuff, 0, count);
-            if (Convert.ToInt32(Recv_str) > 0)
+            if (Recv_str == "#successful")
             {
                 //登录成功
                 //MessageBox.Show("登录成功");

@@ -42,5 +42,15 @@ namespace server
 
             return ds.Tables[0];
         }
+
+        public string GetScalar(string sql)
+        {
+            SqlCommand sqlcmd = new SqlCommand(sql,sqlcon);
+
+            sqlcon.Open();
+            string result = sqlcmd.ExecuteScalar().ToString();
+            sqlcon.Close();
+            return result;
+        }
     }
 }
