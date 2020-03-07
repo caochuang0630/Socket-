@@ -53,26 +53,35 @@ namespace Client_form
             byte[] readBuff = new byte[1024];
             int count;
             string name = "";
-            while (true)
-            {
-                count = socket.Receive(readBuff);
-                name = System.Text.Encoding.UTF8.GetString(readBuff, 0, count);
+            //while (true)
+            //{
+            //    count = socket.Receive(readBuff);
+            //    name = System.Text.Encoding.UTF8.GetString(readBuff, 0, count);
 
-                users.Add(name);
-                //判断结束
-                if (name == "#End")
-                {
-                    socket.Send(System.Text.Encoding.UTF8.GetBytes("#exit"));
-                    socket.Close();
-                    break;
-                }
-            }
+            //    users.Add(name);
+            //    //判断结束
+            //    if (name == "#End")
+            //    {
+            //        socket.Send(System.Text.Encoding.UTF8.GetBytes("#exit"));
+            //        socket.Close();
+            //        break;
+            //    }
+            //}
+
+            //读取返回字符串，做拆解
+            count = socket.Receive(readBuff);
+            name = System.Text.Encoding.UTF8.GetString(readBuff, 0, count);
+            users = name.Split('*').ToList();
+
+            //退出程序
+            socket.Send(System.Text.Encoding.UTF8.GetBytes("#exit"));
+            socket.Close();
 
             //Thread.Sleep(3000);
 
             //吧取回来的数据remove掉一个上面用“取用户名”登录查询的这个name
             users.Remove(login_name);
-            users.Remove("#End");
+            //users.Remove("#End");
             users.Remove(Chat_socket.name);
 
             //this.listView1.BeginUpdate();   //数据更新，UI暂时挂起，直到EndUpdate绘制控件，可以有效避免闪烁并大大提高加载速度 

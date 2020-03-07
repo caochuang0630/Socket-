@@ -136,16 +136,29 @@ namespace server
                 
             }
 
-            //命令作用 获取当前服务器的用户名
-            if (text=="#Chat-getusers")
+            ////命令作用 获取当前服务器的用户名
+            //if (text=="#Chat-getusers")
+            //{
+            //    foreach (Socket_Thread i in Data.list_Socket )
+            //    {
+            //        connfd.Send(Encoding.UTF8.GetBytes(i.name));
+            //        Thread.Sleep(100);
+            //    }
+            //    Thread.Sleep(100);
+            //    connfd.Send(Encoding.UTF8.GetBytes("#End"));
+            //}
+
+            if (text == "#Chat-getusers")
             {
-                foreach (Socket_Thread i in Data.list_Socket )
+                //建立变量，存储用户名
+                string[] user_list = new string[Data.list_Socket.Count];
+                for (int i = 0; i < Data.list_Socket.Count; i++)
                 {
-                    connfd.Send(Encoding.UTF8.GetBytes(i.name));
-                    Thread.Sleep(100);
+                    user_list[i] = Data.list_Socket[i].name;
                 }
-                Thread.Sleep(100);
-                connfd.Send(Encoding.UTF8.GetBytes("#End"));
+
+                //拼接字符串,并返回给客户端
+                connfd.Send(Encoding.UTF8.GetBytes(String.Join("*",user_list))); 
             }
         }
         /// <summary>
