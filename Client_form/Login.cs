@@ -54,7 +54,7 @@ namespace Client_form
 
             //Connect
             socket.Connect("144.48.7.216", 2222);
-            socket.Send(Encoding.UTF8.GetBytes("login"));
+            socket.Send(Encoding.UTF8.GetBytes("#1 login"));
 
             //设置一个线程来检测登录是否超时
             overtime = new Thread(new ParameterizedThreadStart(Is_Overtime));//创建线程
@@ -86,16 +86,21 @@ namespace Client_form
             {
                 //登录成功
                 //MessageBox.Show("登录成功");
-                cf = new Chat_form(new Socket_info(Method.Connect(this.textBox1.Text), this.textBox1.Text));
+                //使用类型2来进行chat连接，名字为用户名
+                cf = new Chat_form(new Socket_info(Method.Connect("#2 "+this.textBox1.Text), this.textBox1.Text));
 
                 cf.Show();
 
                 this.Visible = false;
             }
-            else
+            else if(Recv_str == "#fail")
             {
                 //登录失败
                 MessageBox.Show("登录失败");
+            }else if (Recv_str == "#already")
+            {
+                //账号已登录
+                MessageBox.Show("账号已经登录");
             }
             //Console.WriteLine("服务器返回: " + Recv_str);
 

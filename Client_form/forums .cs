@@ -19,7 +19,7 @@ namespace Client_form
         //准备连接取用户名
         List<string> users = new List<string>();
         //监听线程
-        Thread Recv_thread;
+        //Thread Recv_thread;
 
         public Chat_form(Socket_info s)
         {
@@ -42,7 +42,7 @@ namespace Client_form
             this.listBox1.Items.Clear();
 
             string login_name = "getuser";
-            Socket socket = Method.Connect(login_name);
+            Socket socket = Method.Connect("#1 "+login_name);
 
             //开始监听
             //Recv_thread = new Thread(new ParameterizedThreadStart(Recv));//创建线程
@@ -97,29 +97,29 @@ namespace Client_form
             
         }
 
-        private  void Recv(object s)
-        {
-            Socket socket = (Socket)s;
+        //private  void Recv(object s)
+        //{
+        //    Socket socket = (Socket)s;
 
-            byte[] readBuff = new byte[1024];
-            int count;
-            string name = "";
-            while (true)
-            {
-                count = socket.Receive(readBuff);
-                name = System.Text.Encoding.UTF8.GetString(readBuff, 0, count);
+        //    byte[] readBuff = new byte[1024];
+        //    int count;
+        //    string name = "";
+        //    while (true)
+        //    {
+        //        count = socket.Receive(readBuff);
+        //        name = System.Text.Encoding.UTF8.GetString(readBuff, 0, count);
 
-                users.Add(name);
-                //判断结束
-                if (name == "#End")
-                {
-                    socket.Send(System.Text.Encoding.UTF8.GetBytes("#exit"));
-                    socket.Close();
-                    Recv_thread.Abort();
-                    break;
-                }
-            }
-        }
+        //        users.Add(name);
+        //        //判断结束
+        //        if (name == "#End")
+        //        {
+        //            socket.Send(System.Text.Encoding.UTF8.GetBytes("#exit"));
+        //            socket.Close();
+        //            Recv_thread.Abort();
+        //            break;
+        //        }
+        //    }
+        //}
 
         private void Chat_form_Load(object sender, EventArgs e)
         {

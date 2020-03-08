@@ -57,11 +57,14 @@ namespace server
                     }
                 }
 
+                //拆分字符串，按照连接类型进行实例化操作
+                string[] user_info = name.Split(' ');
+                
+                Socket_Thread st = new Socket_Thread(connfd, user_info[1],Convert.ToInt32(user_info[0].Substring(1)));
+
                 //发送一个回包，告诉客户端登陆成功
                 connfd.Send(Encoding.UTF8.GetBytes("#True"));
 
-
-                Socket_Thread st = new Socket_Thread(connfd, name);
                 Data.list_Socket.Add(st);
                 Console.WriteLine("用户名：" + name + "登录");
 

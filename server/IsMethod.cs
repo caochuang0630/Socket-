@@ -15,6 +15,7 @@ namespace server
 {
     class IsMethod
     {
+        private static DBhelper db = new DBhelper();
         /// <summary>
         /// 监听socket送来的数据
         /// </summary>
@@ -28,19 +29,45 @@ namespace server
             string str;
             while (true)
             {
-                count = socket.socket.Receive(readBuff);
+                try
+                {
+                    count = socket.socket.Receive(readBuff);
+                }
+                catch (Exception)
+                {
+                    Console.WriteLine("客户端异常断开连接");
+                    disconnect(socket);
+                    return;
+                }
+                
+
                 str = System.Text.Encoding.UTF8.GetString(readBuff, 0, count);
+                //检测客户端是否异常断开
+                if (str=="")
+                {
+                    Console.WriteLine("客户端异常断开连接");
+                    disconnect(socket);
+                    return;
+                }
                 Console.WriteLine("[服务器接收]" + str);
 
                 if (str=="#exit")
                 {
-                    Console.WriteLine(socket.name+" 客户端断开了连接");
-                    Data.list_Socket.Remove(socket);
-                    socket.socket.Close();
+                    disconnect(socket);
                     return;
                 }
 
-                
+                ////检测是否连接
+                //if (!IsSocketConnected(socket.socket))
+                //{
+                //    Console.WriteLine("客户调已经异常退出");
+
+                //    Console.WriteLine(socket.name + " 客户端断开了连接");
+                //    Data.list_Socket.Remove(socket);
+                //    socket.socket.Close();
+                //    return;
+                //}
+
                 IsSQL(str, socket);
                 IsChat(str, socket.socket);
                 IsLogin(str, socket.socket);
@@ -50,6 +77,18 @@ namespace server
         public static void Socket_send(Socket_Thread socket, string text)
         {
             socket.socket.Send(System.Text.Encoding.UTF8.GetBytes(text));
+        }
+
+        private static void disconnect(Socket_Thread socket)
+        {
+            Console.WriteLine(socket.name + " 客户端断开了连接");
+            //判断连接类型,2为指定chat连接类型,当chat断开连接时，应该把数据库的status信息更新为off
+            if (socket.type==2)
+            {
+                db.query(String.Format("update [User] set status = 'off' where username = '{0}' ",socket.name)) ;
+            }
+            Data.list_Socket.Remove(socket);
+            socket.socket.Close();
         }
 
         /// <summary>
@@ -160,6 +199,8 @@ namespace server
                 //拼接字符串,并返回给客户端
                 connfd.Send(Encoding.UTF8.GetBytes(String.Join("*",user_list))); 
             }
+
+            
         }
         /// <summary>
         /// 判断是否登陆命令
@@ -181,7 +222,19 @@ namespace server
                     //验证账号密码
                     if(password == db.GetScalar(String.Format("select password from [User] where username='{0}'", username)))
                     {
-                        connfd.Send(Encoding.UTF8.GetBytes("#successful"));
+                        //判断账号是否已经的登陆
+                        string status =  db.GetScalar(String.Format("select status from [User] where username = '{0}'",username));
+                        if (status=="on")
+                        {
+                            //说明账号已经登录无需登录
+                            connfd.Send(Encoding.UTF8.GetBytes("#already")) ;
+                        }else if (status=="off")
+                        {
+                            //说明没有登陆允许登录
+                            //数据库写入状态--登录
+                            db.query(String.Format(" update [User] set status = 'on',last_login_date=getdate() where username = '{0}' ", username));
+                            connfd.Send(Encoding.UTF8.GetBytes("#successful"));
+                        }
                     }
                     else
                     {
@@ -220,6 +273,35 @@ namespace server
             myWebResponse.Close();
             return responseStr;
 
+        }
+
+        /// <summary>
+        /// 检查一个Socket是否可连接
+        /// </summary>
+        /// <param name="client"></param>
+        /// <returns></returns>
+        private static bool IsSocketConnected(Socket client)
+        {
+            bool blockingState = client.Blocking;
+            try
+            {
+                byte[] tmp = new byte[1];
+                client.Blocking = false;
+                client.Send(tmp, 0, 0);
+                return true;
+            }
+            catch (SocketException e)
+            {
+                // 产生 10035 == WSAEWOULDBLOCK 错误，说明被阻止了，但是还是连接的
+                if (e.NativeErrorCode.Equals(10035))
+                    return false;
+                else
+                    return true;
+            }
+            finally
+            {
+                client.Blocking = blockingState;    // 恢复状态
+            }
         }
     }
 }
