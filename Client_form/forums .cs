@@ -32,7 +32,7 @@ namespace Client_form
         {
             //通过设置按钮响应机制防止服务器提交出错
             this.button1.Enabled = false;
-            Refresh_user();
+            Refresh_user1();
             this.button1.Enabled = true;
         }
 
@@ -42,7 +42,7 @@ namespace Client_form
             this.listBox1.Items.Clear();
 
             string login_name = "getuser";
-            Socket socket = Method.Connect("#1 "+login_name);
+            Socket socket = Method.Connect("#1 " + login_name);
 
             //开始监听
             //Recv_thread = new Thread(new ParameterizedThreadStart(Recv));//创建线程
@@ -95,6 +95,33 @@ namespace Client_form
             users.Clear();
 
             
+        }
+
+        private void Refresh_user1()
+        {
+            //清空数据
+            this.listBox1.Items.Clear();
+
+            Chat_socket.socket.Send(Encoding.UTF8.GetBytes("#Chat-getusers"));
+
+            byte[] readBuff = new byte[1024];
+            int count;
+            string name = "";
+
+            count = Chat_socket.socket.Receive(readBuff);
+            name = System.Text.Encoding.UTF8.GetString(readBuff, 0, count);
+            users = name.Split('*').ToList();
+
+            //吧取回来的数据remove掉一个上面用“取用户名”登录查询的这个name
+            //users.Remove(login_name);
+            //users.Remove("#End");
+            users.Remove(Chat_socket.name);
+
+            for (int i = 0; i < users.Count; i++)   //添加数据 
+            {
+                this.listBox1.Items.Add(users[i]);
+            }
+            users.Clear();
         }
 
         //private  void Recv(object s)

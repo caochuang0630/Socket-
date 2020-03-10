@@ -29,6 +29,8 @@ namespace Client
 
             //Socket
             Socket socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+            socket.ReceiveTimeout = 5000;
+            socket.SendTimeout = 5000;
 
             //Connect
             socket.Connect("144.48.7.216", 2222);
@@ -36,8 +38,8 @@ namespace Client
             socket.Send(System.Text.Encoding.UTF8.GetBytes(Console.ReadLine()));
 
             //创建监听返回
-            overtime = new Thread(new ParameterizedThreadStart(Is_Overtime));//创建线程
-            overtime.Start(socket);                                               //启动线程
+            //overtime = new Thread(new ParameterizedThreadStart(Is_Overtime));//创建线程
+            //overtime.Start(socket);                                               //启动线程
 
             try
             {
@@ -45,12 +47,16 @@ namespace Client
             }
             catch (Exception)
             {
+                Console.WriteLine("超时,任意键退出");
+                Console.ReadLine();
                 return;
             }
 
             overtime.Abort();
 
             string Recv_str = System.Text.Encoding.UTF8.GetString(readBuff, 0, count);
+            Console.WriteLine("服务器接收："+Recv_str);
+            socket.Send(Encoding.UTF8.GetBytes("#hello")) ;
 
             Console.WriteLine("连接成功！");
 

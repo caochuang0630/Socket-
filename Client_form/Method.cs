@@ -25,11 +25,36 @@ namespace Client_form
             //Socket
             Socket socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
 
+            //设置超时
+            socket.ReceiveTimeout = 5000;
+            socket.SendTimeout = 5000;
+
             //Connect
             socket.Connect("144.48.7.216", 2222);
             socket.Send(Encoding.UTF8.GetBytes(con_name));
-            int count = socket.Receive(readBuff);
-            return socket;
+
+            int count;
+            try
+            {
+                count = socket.Receive(readBuff);
+            }
+            catch (Exception)
+            {
+                MessageBox.Show("登陆超时,请检查网络");
+                return null;
+            }
+            
+            string Recv_str = Encoding.UTF8.GetString(readBuff, 0, count);
+            if (Recv_str=="#True")
+            {
+                socket.Send(Encoding.UTF8.GetBytes("#hello"));
+                return socket;
+            }
+            else
+            {
+                return null;
+            }
+            
         }
 
         /// <summary>

@@ -32,7 +32,7 @@ namespace Client_form
         {
             if (!(this.textBox1.Text==""||this.textBox2.Text==""))
             {
-                IsLogin(this.textBox1.Text, this.textBox2.Text);
+                IsLogin1(this.textBox1.Text, this.textBox2.Text);
             }
             else
             {
@@ -42,45 +42,50 @@ namespace Client_form
         }
 
         /// <summary>
-        /// 判断账号密码是否正确
+        /// 登陆函数
         /// </summary>
         /// <returns></returns>
         private void IsLogin(string user,string password)
         {
             byte[] readBuff = new byte[1024];
 
-            //Socket
-            Socket socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+            ////Socket
+            //Socket socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
 
-            //Connect
-            socket.Connect("144.48.7.216", 2222);
-            socket.Send(Encoding.UTF8.GetBytes("#1 login"));
+            ////Connect
+            //socket.Connect("144.48.7.216", 2222);
+            //socket.Send(Encoding.UTF8.GetBytes("#1 login"));
 
-            //设置一个线程来检测登录是否超时
-            overtime = new Thread(new ParameterizedThreadStart(Is_Overtime));//创建线程
-            overtime.Start(socket);
+            ////设置一个线程来检测登录是否超时
+            //overtime = new Thread(new ParameterizedThreadStart(Is_Overtime));//创建线程
+            //overtime.Start(socket);
 
-            //这个地方如果连接没有返回字符串说明服务器连接有问题,他就会卡在这里，检测线程就会等待5秒,如果5秒不回复,直接结束程序
-            try
-            {
-                count = socket.Receive(readBuff);
-            }
-            catch (Exception)
+            ////这个地方如果连接没有返回字符串说明服务器连接有问题,他就会卡在这里，检测线程就会等待5秒,如果5秒不回复,直接结束程序
+            //try
+            //{
+            //    count = socket.Receive(readBuff);
+            //}
+            //catch (Exception)
+            //{
+            //    return;
+            //}
+
+            ////如果数据收到了就结束检测线程
+            //overtime.Abort();
+            Socket socket = Method.Connect("#1 Login");
+
+            if (socket==null)
             {
                 return;
             }
-
-            //如果数据收到了就结束检测线程
-            overtime.Abort();
-
             socket.Send(Encoding.UTF8.GetBytes(String.Format("#Login {0},{1}",user,password)));
 
             ////设置一个线程来登录
             //login = new Thread(new ParameterizedThreadStart(Recv));//创建线程
             //login.Start(socket);
            
+            //解析状态
             count = socket.Receive(readBuff);
-
             string Recv_str = System.Text.Encoding.UTF8.GetString(readBuff, 0, count);
             if (Recv_str == "#successful")
             {
@@ -104,10 +109,49 @@ namespace Client_form
             }
             //Console.WriteLine("服务器返回: " + Recv_str);
 
-            //断开连接
-            socket.Send(Encoding.UTF8.GetBytes("#exit"));
-            socket.Close();
+            Method.Disconnect(socket);
+            ////断开连接
+            //socket.Send(Encoding.UTF8.GetBytes("#exit"));
+            //socket.Close();
 
+
+        }
+
+        /// <summary>
+        /// 登陆函数1（该方法采用全新的的登陆方式,只用一个socket，采用类型3）
+        /// </summary>
+        /// <param name="user"></param>
+        /// <param name="password"></param>
+        private void IsLogin1(string user, string password)
+        {
+            //使用类型3来进行登录
+            Socket connect =  Method.Connect(String.Format("#3 {0},{1}", user, password));
+
+            byte[] readBuff = new byte[1024];
+            count = connect.Receive(readBuff);
+            string Recv_str = Encoding.UTF8.GetString(readBuff, 0, count);
+
+            if (Recv_str == "#successful")
+            {
+                //登录成功
+                //MessageBox.Show("登录成功");
+                //使用类型2来进行chat连接，名字为用户名
+                cf = new Chat_form(new Socket_info(connect, this.textBox1.Text));
+
+                cf.Show();
+
+                this.Visible = false;
+            }
+            else if (Recv_str == "#fail")
+            {
+                //登录失败
+                MessageBox.Show("登录失败");
+            }
+            else if (Recv_str == "#already")
+            {
+                //账号已登录
+                MessageBox.Show("账号已经登录");
+            }
 
         }
 

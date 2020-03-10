@@ -27,11 +27,28 @@ namespace server
             byte[] readBuff = new byte[1024];
             int count;
             string str;
+
+            //用来接收#hello
+            count = socket.socket.Receive(readBuff);
+
+            //Thread.Sleep(100);
+            //开始判断是否为为类型3连接登录
+            if (socket.type == 3)
+            {
+                //使用登录验证函数
+                IsLogin(String.Format("#Login {0}", socket.name), socket.socket);
+                //把类型改为2
+                socket.type = 2;
+                //修改名字
+                socket.name = socket.name.Split(',')[0];
+            }
+
             while (true)
             {
                 try
                 {
                     count = socket.socket.Receive(readBuff);
+                    
                 }
                 catch (Exception)
                 {
@@ -71,6 +88,7 @@ namespace server
                 IsSQL(str, socket);
                 IsChat(str, socket.socket);
                 IsLogin(str, socket.socket);
+
             }
         }
 
@@ -203,7 +221,7 @@ namespace server
             
         }
         /// <summary>
-        /// 判断是否登陆命令
+        /// 判断是否登陆命令格式为#Login 用户,密码
         /// </summary>
         /// <param name="text"></param>
         /// <param name="connfd"></param>
@@ -228,17 +246,20 @@ namespace server
                         {
                             //说明账号已经登录无需登录
                             connfd.Send(Encoding.UTF8.GetBytes("#already")) ;
+                            Console.WriteLine("服务器返回: #already");
                         }else if (status=="off")
                         {
                             //说明没有登陆允许登录
                             //数据库写入状态--登录
                             db.query(String.Format(" update [User] set status = 'on',last_login_date=getdate() where username = '{0}' ", username));
                             connfd.Send(Encoding.UTF8.GetBytes("#successful"));
+                            Console.WriteLine("服务器返回: #successful");
                         }
                     }
                     else
                     {
                         connfd.Send(Encoding.UTF8.GetBytes("#fail"));
+                        Console.WriteLine("服务器返回: #fail");
                     }
                 }
                 catch (Exception)
