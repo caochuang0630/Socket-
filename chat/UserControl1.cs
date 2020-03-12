@@ -8,11 +8,11 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
-namespace Client_form
+namespace chat
 {
-    public partial class view : UserControl
+    public partial class UserControl1: UserControl
     {
-        public view()
+        public UserControl1()
         {
             InitializeComponent();
         }

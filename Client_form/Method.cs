@@ -31,6 +31,7 @@ namespace Client_form
 
             //Connect
             socket.Connect("144.48.7.216", 2222);
+            //socket.Connect("192.168.2.52", 2222);
             socket.Send(Encoding.UTF8.GetBytes(con_name));
 
             int count;

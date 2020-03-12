@@ -166,7 +166,7 @@ namespace Client_form
         //选中一个用户聊天弹出
         private void listBox1_SelectedIndexChanged(object sender, EventArgs e)
         {
-            Chat f = new Chat(listBox1.Text, Chat_socket);
+            Chat1 f = new Chat1(listBox1.Text, Chat_socket);
             f.Show();
         }
     }

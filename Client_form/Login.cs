@@ -128,7 +128,18 @@ namespace Client_form
             Socket connect =  Method.Connect(String.Format("#3 {0},{1}", user, password));
 
             byte[] readBuff = new byte[1024];
-            count = connect.Receive(readBuff);
+            try
+            {
+                count = connect.Receive(readBuff);
+            }
+            catch (SocketException e)
+            {
+                if (e.ErrorCode==10060)
+                {
+                    return;
+                }
+            }
+            
             string Recv_str = Encoding.UTF8.GetString(readBuff, 0, count);
 
             if (Recv_str == "#successful")
@@ -146,11 +157,13 @@ namespace Client_form
             {
                 //登录失败
                 MessageBox.Show("登录失败");
+                Method.Disconnect(connect);
             }
             else if (Recv_str == "#already")
             {
                 //账号已登录
                 MessageBox.Show("账号已经登录");
+                Method.Disconnect(connect);
             }
 
         }
@@ -180,8 +193,11 @@ namespace Client_form
 
         private void linkLabel1_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e)
         {
-            register f = new register();
-            f.ShowDialog();
+            //没完善前不打开
+            MessageBox.Show("爬");
+
+            //register f = new register();
+            //f.ShowDialog();
         }
     }
 }

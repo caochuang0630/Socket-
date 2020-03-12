@@ -23,39 +23,70 @@ namespace server
         public static void Socket_Thread_listen(object s)
         {
             Socket_Thread socket = (Socket_Thread)s;
+            
 
             byte[] readBuff = new byte[1024];
-            int count;
+            int count=0;
             string str;
 
             //用来接收#hello
-            count = socket.socket.Receive(readBuff);
+            try
+            {
+                count = socket.socket.Receive(readBuff);
+            }
+            catch (Exception)
+            {
+                Console.WriteLine("客户端异常断开连接");
+                disconnect(socket);
+            }
+            
 
             //Thread.Sleep(100);
             //开始判断是否为为类型3连接登录
             if (socket.type == 3)
             {
                 //使用登录验证函数
-                IsLogin(String.Format("#Login {0}", socket.name), socket.socket);
-                //把类型改为2
-                socket.type = 2;
-                //修改名字
-                socket.name = socket.name.Split(',')[0];
+                //如果验证成功
+                if (IsLogin(String.Format("#Login {0}", socket.name), socket.socket))
+                {
+                    //把类型改为2
+                    socket.type = 2;
+                    //修改名字
+                    socket.name = socket.name.Split(',')[0];
+                }
+                else
+                {
+                    disconnect(socket);
+                    return;
+                }
+                
+                
             }
 
             while (true)
             {
+                socket.socket.ReceiveTimeout = 1000;
+                socket.socket.SendTimeout = 1000;
+
+                
                 try
                 {
                     count = socket.socket.Receive(readBuff);
-                    
                 }
-                catch (Exception)
+                catch (SocketException e)
                 {
-                    Console.WriteLine("客户端异常断开连接");
-                    disconnect(socket);
-                    return;
+                    if(e.ErrorCode == 10054)
+                    {
+                        Console.WriteLine("客户端异常断开连接");
+                        disconnect(socket);
+                        return;
+                    }else if (e.ErrorCode==10060)
+                    {
+                        continue;
+                    }
                 }
+                    
+                    
                 
 
                 str = System.Text.Encoding.UTF8.GetString(readBuff, 0, count);
@@ -88,6 +119,7 @@ namespace server
                 IsSQL(str, socket);
                 IsChat(str, socket.socket);
                 IsLogin(str, socket.socket);
+
 
             }
         }
@@ -225,7 +257,7 @@ namespace server
         /// </summary>
         /// <param name="text"></param>
         /// <param name="connfd"></param>
-        public static void IsLogin(string text,Socket connfd)
+        public static bool IsLogin(string text,Socket connfd)
         {
             DBhelper db = new DBhelper();
             //解析命令是否合法
@@ -247,6 +279,7 @@ namespace server
                             //说明账号已经登录无需登录
                             connfd.Send(Encoding.UTF8.GetBytes("#already")) ;
                             Console.WriteLine("服务器返回: #already");
+                            return false;
                         }else if (status=="off")
                         {
                             //说明没有登陆允许登录
@@ -254,20 +287,23 @@ namespace server
                             db.query(String.Format(" update [User] set status = 'on',last_login_date=getdate() where username = '{0}' ", username));
                             connfd.Send(Encoding.UTF8.GetBytes("#successful"));
                             Console.WriteLine("服务器返回: #successful");
+                            return true;
                         }
                     }
                     else
                     {
                         connfd.Send(Encoding.UTF8.GetBytes("#fail"));
                         Console.WriteLine("服务器返回: #fail");
+                        return false;
                     }
                 }
                 catch (Exception)
                 {
                     connfd.Send(Encoding.UTF8.GetBytes("#命令错误"));
-                    throw;
+                    return false;
                 }
             }
+            return false;
         }
 
 

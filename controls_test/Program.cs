@@ -4,7 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
-namespace Client_form
+namespace controls_test
 {
     static class Program
     {
@@ -16,8 +16,7 @@ namespace Client_form
         {
             Application.EnableVisualStyles();
             Application.SetCompatibleTextRenderingDefault(false);
-            //Application.Run(new Login());
-            Application.Run(new Login());
+            Application.Run(new Form1());
         }
     }
 }

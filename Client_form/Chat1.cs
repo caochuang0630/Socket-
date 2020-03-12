@@ -5,18 +5,16 @@ using System.Data;
 using System.Drawing;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using System.Net.Sockets;
-using System.Threading;
 
 namespace Client_form
 {
-    public partial class Chat : Form
+    public partial class Chat1 : Form
     {
         Socket_info chat_socket;
 
-        
 
         //监听线程
         Thread Recv_thread;
@@ -24,7 +22,7 @@ namespace Client_form
         //判断发送是否成功
         bool Is_send = false;
 
-        public Chat(string name, Socket_info s)
+        public Chat1(string name, Socket_info s)
         {
             InitializeComponent();
             this.Text = name;
@@ -34,24 +32,21 @@ namespace Client_form
             Recv_thread = new Thread(new ParameterizedThreadStart(Recv));//创建线程
             Recv_thread.Start(chat_socket);
 
-
         }
 
-        //发送按钮
         private void button1_Click(object sender, EventArgs e)
         {
             ///先判断是不是空消息
-            if (this.textBox1.Text!="")
+            if (this.textBox1.Text != "")
             {
-                chat_socket.socket.Send(Encoding.UTF8.GetBytes(String.Format("#Chat {0} {1}",this.Text,this.textBox1.Text)));
+                chat_socket.socket.Send(Encoding.UTF8.GetBytes(String.Format("#Chat {0} {1}", this.Text, this.textBox1.Text)));
 
                 for (int i = 0; i < 3; i++)
                 {
                     //判断是否发送成功
-                    if (Is_send==true)
+                    if (Is_send == true)
                     {
-                        this.listBox1.Items.Add(DateTime.Now.ToString("yyyy-MM-dd-HH:mm:ss" + " 我："));
-                        this.listBox1.Items.Add(this.textBox1.Text);
+                        this.chatControl1.add(DateTime.Now.ToString("yyyy-MM-dd-HH:mm:ss") + " 我：", this.textBox1.Text);
                         this.textBox1.Text = "";
                         return;
                     }
@@ -59,13 +54,15 @@ namespace Client_form
                 }
 
                 MessageBox.Show("发送超时！");
-                
+
             }
             else
             {
                 MessageBox.Show("消息不能为空");
             }
         }
+
+        private delegate void Thread_control(string title,string text);
 
         /// <summary>
         /// 监听线程
@@ -90,15 +87,20 @@ namespace Client_form
                         Is_send = true;
                         continue;
                     }
+                    //测试语句
+                    //MessageBox.Show("消息");
 
+                    Thread_control thread_control = new Thread_control(this.chatControl1.add);
+                    this.Invoke(thread_control, DateTime.Now.ToString("yyyy-MM-dd-HH:mm:ss") + " " + this.Text + ":", name);
 
-                    this.listBox1.Items.Add(DateTime.Now.ToString("yyyy-MM-dd-HH:mm:ss" + " " + this.Text + ":"));
-                    this.listBox1.Items.Add(name);
                 }
-                catch (Exception)
+                catch (System.Net.Sockets.SocketException e)
                 {
-
-                    continue;
+                    if (e.ErrorCode==10060)
+                    {
+                        continue;
+                    }
+                    
                 }
             }
         }
@@ -114,8 +116,8 @@ namespace Client_form
         {
             if (e.KeyCode == Keys.Enter)
             {
-                button1_Click(null,null);
-                
+                button1_Click(null, null);
+
             }
         }
     }

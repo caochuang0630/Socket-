@@ -33,7 +33,9 @@ namespace Client
             socket.SendTimeout = 5000;
 
             //Connect
-            socket.Connect("144.48.7.216", 2222);
+            //socket.Connect("144.48.7.216", 2222);
+            socket.Connect("192.168.2.52", 2222);
+
             Console.WriteLine("请输入登录用户名");
             socket.Send(System.Text.Encoding.UTF8.GetBytes(Console.ReadLine()));
 
@@ -52,7 +54,7 @@ namespace Client
                 return;
             }
 
-            overtime.Abort();
+            //overtime.Abort();
 
             string Recv_str = System.Text.Encoding.UTF8.GetString(readBuff, 0, count);
             Console.WriteLine("服务器接收："+Recv_str);

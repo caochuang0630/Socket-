@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 14
-VisualStudioVersion = 14.0.25420.1
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.29806.167
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "server", "server\server.csproj", "{DB043CD8-D2B3-49A3-9F45-44CE02ACAEF2}"
 EndProject
@@ -12,6 +12,8 @@ EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "test", "test\test.csproj", "{23ECC644-D7B6-4B4B-AE02-C9652417560D}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Client_form", "Client_form\Client_form.csproj", "{572274A3-C5FC-475F-BB5C-04174E906283}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "controls_test", "controls_test\controls_test.csproj", "{AFAA5BFC-9948-428D-BE6E-F9C164200790}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -39,8 +41,15 @@ Global
 		{572274A3-C5FC-475F-BB5C-04174E906283}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{572274A3-C5FC-475F-BB5C-04174E906283}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{572274A3-C5FC-475F-BB5C-04174E906283}.Release|Any CPU.Build.0 = Release|Any CPU
+		{AFAA5BFC-9948-428D-BE6E-F9C164200790}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{AFAA5BFC-9948-428D-BE6E-F9C164200790}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{AFAA5BFC-9948-428D-BE6E-F9C164200790}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{AFAA5BFC-9948-428D-BE6E-F9C164200790}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {B00D35C5-3302-479C-9AAE-4BC895BF5C3B}
 	EndGlobalSection
 EndGlobal
